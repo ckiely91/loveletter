@@ -3,8 +3,9 @@
 	{{#if currentUser}}
 		{{> status}}
 		{{#if inProgress}}
-		{{> deck}}
-		{{> hand}}
+			{{> deck}}
+			{{> discard}}
+			{{> hand}}
 		{{/if}}
 		{{> pile}}
 	{{/if}}
@@ -23,6 +24,16 @@
 				<div>Deck</div>
 			</div>
 	</div>
+</template>
+
+<template name="discard">
+<div id="discard">
+	<h2>Discard</h2>
+	<div class="card {{discard.type}}">
+		<div>{{discard.value}}</div>
+		<div>{{#if discard.type}}{{discard.type}}{{else}}Discards{{/if}}</div>
+	</div>
+</div>
 </template>
 
 <template name="hand">

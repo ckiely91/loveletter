@@ -85,3 +85,7 @@ li a:hover {
 	min-height:250px;
 }
 
+#deck, #discard {
+	display:inline-block;
+}
+
