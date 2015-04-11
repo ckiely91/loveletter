@@ -4,9 +4,6 @@ Turns.otherId = function (game) {
 	return game.currentTurn[game.currentTurn[0] === Meteor.userId() ? 1 : 0];
 };
 
-Turns.dealPlayer = function (id,deck) {
-	
-};
 
 Turns.addCardToHand = function (gameId, id, card) {
 		var object = {};
@@ -20,7 +17,6 @@ Turns.removeTopOfDeck = function (gameId) {
 
 Turns.playGuard = function (gameId, game, id, otherPlayerId, guess) {
 	var	opponentHand = game.players[otherPlayerId].hand[0].type;
-
 
 	console.log(opponentHand);
 

@@ -25,7 +25,7 @@ Meteor.methods({
 		var game = Games.findOne(gameId),
 			deck = game.deck;
 		if (game.currentTurn[0] !== id) return;
-		if (game.players[id].hand.length > 2) return;
+		if (game.players[id].hand.length > 1) return;
 
 		var card = deck.shift();
 		Turns.addCardToHand(gameId, id, card);

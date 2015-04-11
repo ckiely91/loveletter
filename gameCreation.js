@@ -25,12 +25,6 @@ GameFactory.dealPlayers = function (players,deck) {
 	}
 };
 
-/*
-function dealTable(deck) {
-	var c = deck.shift.bind(deck);
-	return [c(), c(), c(), c()];
-}*/
-
 function createPlayers(ids) {
 	var o = {};
 
@@ -65,27 +59,3 @@ function createLLDeck () {
 			];
 	return _.shuffle(cards);
 }
-
-/*
-function createDeck () {
-	var suits = ['Cups', 'Coins', 'Swords', 'Clubs'],
-	cards = [];
-
-	suits.forEach(function (suit) {
-		for (var i = 1; i <= 10; i++) {
-			var name = i;
-			if (i === 1) name = 'A';
-			if (i === 8) name = 'N';
-			if (i === 9) name = 'Q';
-			if (i === 10) name = 'K';
-			cards.push({
-				suit: suit,
-				value: i,
-				name: name
-			});
-		}
-	});
-
-	return _.shuffle(cards);
-
-	} */

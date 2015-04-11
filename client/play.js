@@ -11,6 +11,8 @@ Template.hand.events({
 			} else {
 				Meteor.call('playCard', template.data._id, Meteor.userId(), this);
 			}
+		} else {
+			alert("It's not your turn");
 		}
 	}
 });
