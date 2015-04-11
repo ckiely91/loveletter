@@ -18,7 +18,7 @@ GameFactory.createGame = function (playerIds) {
 };
 
 GameFactory.dealPlayers = function (players,deck) {
-	for (var i = 0; i < 2; i++) {
+	for (var i = 0; i < 1; i++) {
 		Object.keys(players).forEach(function (id) {
 			players[id].hand.push(deck.shift());
 		});

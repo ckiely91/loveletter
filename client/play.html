@@ -6,8 +6,9 @@
 			{{> deck}}
 			{{> discard}}
 			{{> hand}}
+		{{else}}
+			<h1>{{winner}} wins!</h1>
 		{{/if}}
-		{{> pile}}
 	{{/if}}
 </template>
 
@@ -46,15 +47,4 @@
 			</div>
 		{{/each}}
 	</div>
-</template>
-
-<template name="pile">
-<div id="pile">
-<h2>Collected Cards</h2>
-<ul>
-{{#each player.pile}}
-	<li>{{type}} ({{value}}</li>
-{{/each}}
-</ul>
-</div>
 </template>

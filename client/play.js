@@ -41,5 +41,8 @@ Template.deck.events({
 			alert("It's not your turn!");
 		}
 	}
-})
+});
 
+Template.play.helpers({
+	winnername : Meteor.users.findOne(winner)
+})

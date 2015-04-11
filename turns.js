@@ -4,7 +4,6 @@ Turns.otherId = function (game) {
 	return game.currentTurn[game.currentTurn[0] === Meteor.userId() ? 1 : 0];
 };
 
-
 Turns.addCardToHand = function (gameId, id, card) {
 		var object = {};
 		object["players." + id + ".hand"] = card;
@@ -19,12 +18,33 @@ Turns.addToDiscard = function (gameId, card) {
 	Games.update(gameId, {$set: {"discard": card}});
 };
 
-Turns.removeFromHand = function (gameId, id, card) {
-	//BUGGY: currently removes all cards of this type rather than just one
-	var object = {};
-	object["players." + id + ".hand"] = card;
-	Games.update(gameId, {$pull: object});
+Turns.endGame = function (gameId, winner) {
+	var winnerName = Meteor.users.findOne(winner).username;
+	Games.update(gameId, {$set: {"winner": winnerName}});
+	Games.update(gameId, {$set: {"inProgress": false} });
+};
 
+Turns.removeFromHand = function (gameId, id, card) {
+	var game = Games.findOne(gameId),
+		hand = game.players[id].hand;
+		hand2 = [],
+		cardFound = false;
+
+		for (var i = hand.length - 1; i >= 0; i--) {
+			console.log(hand[i]);
+
+			if ((hand[i].value == card.value) && (cardFound == false))
+			{
+				console.log("Found my needle in my haystack.");
+				console.log(card);
+				cardFound = true;
+			} else {
+				hand2.push(hand[i]);
+			}
+		};
+	var object = {};
+	object["players." + id + ".hand"] = hand2;
+	Games.update(gameId, {$set: object});
 };
 
 Turns.changeCurrentPlayer = function (gameId) {
@@ -45,12 +65,11 @@ Turns.playGuard = function (gameId, game, id, otherPlayerId, card, guess) {
 
 	if (opponentHand === guess) {
 		console.log("Your opponent has that card!")
-		//otherPlayerId loses the game
-		//trigger endgame
+		Turns.endGame(gameId,otherPlayerId);
 
 	} else {
     	console.log("Your opponent doesn't have that card!")
-    	//continue game
+    	return;
 	};
 
 
@@ -80,9 +99,9 @@ Turns.playBaron = function (gameId, game, id, otherPlayerId, card) {
 		userHand = game.players[id].hand[0].value;
 
 	if (userHand > opponentHand) {
-		//otherPlayerId is out!
+		Turns.endGame(gameId,id);
 	} else if (userHand < opponentHand) {
-		//id (current player) is out!
+		Turns.endGame(gameId,otherPlayerId);
 	} else {
 		// cards must be equal, nothing happens
 		return;
@@ -137,4 +156,6 @@ Turns.playPrincess = function (gameId, game, id, otherPlayerId, card) {
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
 	Turns.changeCurrentPlayer(gameId);
+
+	Turns.endGame(gameId,otherPlayerId);
 };
