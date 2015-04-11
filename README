@@ -1,1 +1,9 @@
 Love Letter implementation on Meteor
+
+##Setting up with Meteor
+Once you've cloned the repository, navigate to the directory in the terminal and run the command:
+`meteor`
+
+This will download the required packages and start a local meteor server you can access at `localhost:3000`.
+
+Enjoy

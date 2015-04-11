@@ -15,6 +15,7 @@ if (Meteor.isClient) {
 	Meteor.subscribe('users');
 }
 
+
 Meteor.methods({
 	createGame: function (otherPlayerId) {
 		var game = GameFactory.createGame([Meteor.userId(), otherPlayerId]);
@@ -22,19 +23,39 @@ Meteor.methods({
 	},
 	takeCard: function (gameId, id) {
 		var game = Games.findOne(gameId),
-			playerHand = game.players[id].hand,
-			mongoPlayerHand = "players." + id + ".hand";
 			deck = game.deck;
+		if (game.currentTurn[0] !== id) return;
+		if (game.players[id].hand.length > 2) return;
 
 		var card = deck.shift();
-		console.log(mongoPlayerHand);
-		playerHand = game.players[id].hand.push(card);
+		Turns.addCardToHand(gameId, id, card);
+		Turns.removeTopOfDeck(gameId);
+	},
+	playCard: function (gameId, id, card, guess) {
+		var game = Games.findOne(gameId),
+			type = card.type;
 
-		var object = {};
-		object["players." + id + ".hand"] = card;
-		Games.update(gameId, {$push: object});
-		Games.update(gameId, {$pop: {"deck": -1}});
-
-		console.log(deck);
+		var otherPlayerId = Turns.otherId(game);
+		
+		if (type === "Guard") {
+			Turns.playGuard(gameId,game,id,otherPlayerId,guess);
+		} else if (type === "Priest") {
+			Turns.playPriest();
+		} else if (type === "Baron") {
+			Turns.playBaron();
+		} else if (type === "Handmaid") {
+			Turns.playHandmaid();
+		} else if (type === "Prince") {
+			Turns.playPrince();
+		} else if (type === "King") {
+			Turns.playKing();
+		} else if (type === "Countess") {
+			Turns.playCountess();
+		} else if (type === "Princess") {
+			Turns.playPrincess();
+		} else {
+			console.log ("Wut");
+			return;
+		};
 	}
 })
