@@ -23,20 +23,18 @@ Meteor.methods({
 	takeCard: function (gameId, id) {
 		var game = Games.findOne(gameId),
 			playerHand = game.players[id].hand,
+			mongoPlayerHand = "players." + id + ".hand";
 			deck = game.deck;
 
 		var card = deck.shift();
-		console.log(playerHand);
-		//Games.update({ _id: gameId}, {$push: {players: id: hand: card}});
+		console.log(mongoPlayerHand);
 		playerHand = game.players[id].hand.push(card);
 
-		Games.update(
-		    {"_id" : gameId, "players": id},
-		    {$push:{"players.$.hand":playerHand}}
-		);
+		var object = {};
+		object["players." + id + ".hand"] = card;
+		Games.update(gameId, {$push: object});
+		Games.update(gameId, {$pop: {"deck": -1}});
 
-		//Turns.dealPlayer(id, game.deck);
-		//game.players[id].hand.push(deck.shift());
-		console.log(playerHand);
+		console.log(deck);
 	}
 })
