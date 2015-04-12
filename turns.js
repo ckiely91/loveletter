@@ -176,7 +176,7 @@ Turns.playGuard = function (gameId, game, id, otherPlayerId, card, guess) {
 	if (opponentHand === guess) {
 		console.log("Your opponent has that card!");
 		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Guard and guessed " + guess + ", and they were right!");
-		Turns.endGame(gameId,otherPlayerId);
+		Turns.endGame(gameId,id);
 		return;
 	} else {
     	console.log("Your opponent doesn't have that card!");
