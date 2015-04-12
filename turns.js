@@ -25,11 +25,43 @@ Turns.addToDiscard = function (gameId, card) {
 };
 
 Turns.endGame = function (gameId, winner) {
-	var winnerName = Meteor.users.findOne(winner).username;
-	Games.update(gameId, {$set: {"winner": winnerName}});
+	if (winner === "tie") {
+		Turns.log(gameId, "It's a... tie?!");
+		Games.update(gameId, {$set: {"winner": "Nobody"}});
+	} else {
+		var winnerName = Meteor.users.findOne(winner).username;
+		Games.update(gameId, {$set: {"winner": winnerName}});
+		Turns.log(gameId, winnerName + " won the game!");
+	}
+	
 	Games.update(gameId, {$set: {"inProgress": false} });
-	Turns.log(gameId, winnerName + " won the game!");
+
 };
+
+Turns.endGameEmptyDeck = function(gameId) {
+	var game = Games.findOne(gameId),
+		player1 = game.currentTurn[0],
+		player2 = game.currentTurn[1],
+		player1hand = game.players[player1].hand[0],
+		player2hand = game.players[player2].hand[0];
+
+	Turns.log(gameId, "Game over!");
+	Turns.log(gameId, Meteor.users[player1].username + " had a " + player1hand.type + ", worth " + player1hand.value + ".");
+	Turns.log(gameId, Meteor.users[player2].username + " had a " + player2hand.type + ", worth " + player2hand.value + ".");
+
+	if (player1hand.value > player2hand.value) {
+		Turns.endGame(gameId, player1);
+	} else if (player1hand.value < player2hand.value) {
+		Turns.endGame(gameId, player2);
+	} else {
+		Turns.endGame(gameId, "tie");
+	}
+}
+
+Turns.deckEmpty = function (gameId) {
+	Turns.log(gameId,"The deck is now empty. Final turn!");
+	Games.update(gameId, {$set: {"lastTurn":true}});
+}
 
 Turns.removeFromHand = function (gameId, id, card) {
 	var game = Games.findOne(gameId),
@@ -67,6 +99,22 @@ Turns.discardHandAndDrawNewCard = function (gameId, id) {
 	Turns.log(gameId, Meteor.users.findOne(id).username + "'s hand was discarded and they drew a new card.");
 
 }
+
+Turns.swapHands = function (gameId, id, otherPlayerId) {
+	var game = Games.findOne(gameId),
+		hand1 = game.players[id].hand,
+		hand2 = game.players[otherPlayerId].hand;
+
+	var object1 = {};
+	object1["players." + id + ".hand"] = hand2;
+	Games.update(gameId, {$set: object1});
+
+	var object2 = {};
+	object2["players." + otherPlayerId + ".hand"] = hand1;
+	Games.update(gameId, {$set: object2});
+}
+
+
 
 Turns.changeCurrentPlayer = function (gameId) {
 	var game = Games.findOne(gameId),
@@ -204,7 +252,6 @@ Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 
 	if (which == 1) {
 		//current player discards hand and draws new card
-
 		Turns.discardHandAndDrawNewCard(gameId,id);
 
 	} else {
@@ -217,11 +264,12 @@ Turns.playKing = function (gameId, game, id, otherPlayerId, card) {
 	//Trade hands
 	//Must discard Countess instead if held
 	console.log("Discarded King");
-	Turns.log(gameId, Meteor.users.findOne(id).username + " played a King.");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a King. Players have swapped hands.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
 	Turns.changeCurrentPlayer(gameId);
+	Turns.swapHands(gameId,id,otherPlayerId);
 };
 
 Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {

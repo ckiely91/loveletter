@@ -19,7 +19,8 @@ if (Meteor.isClient) {
 Meteor.methods({
 	createGame: function (otherPlayerId) {
 		var game = GameFactory.createGame([Meteor.userId(), otherPlayerId]);
-		Games.insert(game);
+		var gameId = Games.insert(game);
+		Turns.log(gameId, "Game started. Three random cards were removed from the deck.")
 	},
 	takeCard: function (gameId, id) {
 		var game = Games.findOne(gameId),
@@ -36,7 +37,7 @@ Meteor.methods({
 			type = card.type;
 
 		var otherPlayerId = Turns.otherId(game);
-		
+
 		if (type === "Guard") {
 			Turns.playGuard(gameId,game,id,otherPlayerId,card,guess);
 		} else if (type === "Priest") {
@@ -57,5 +58,11 @@ Meteor.methods({
 			console.log ("Wut");
 			return;
 		};
+	},
+	deckEmpty: function (gameId) {
+		Turns.deckEmpty(gameId);
+	},
+	endGameEmptyDeck: function (gameId) {
+		Turns.endGameEmptyDeck(gameId);
 	}
 })

@@ -54,6 +54,10 @@ Template.hand.events({
 				} else {
 					Meteor.call('playCard', template.data._id, Meteor.userId(), this);
 				}
+
+				if (template.data.inProgress == true && template.data.lastTurn == true) {
+					Meteor.call('endGameEmptyDeck', template.data._id);
+				}
 			}
 			
 		} else {
@@ -66,11 +70,18 @@ Template.deck.events({
 	'click .card': function (evt, template) {
 
 		if (template.data.yourTurn) {
-			if (template.data.players[Meteor.userId()].hand.length <= 1) {
+			var deck = template.data.deck;
+			if (deck.length > 1) {
+				if (template.data.players[Meteor.userId()].hand.length <= 1) {
 				Meteor.call('takeCard', template.data._id, Meteor.userId());
+				} else {
+					alert("You've already taken a card this turn.");
+				}
 			} else {
-				alert("You've already taken a card this turn.");
+				Meteor.call('deckEmpty', template.data._id);
+				Meteor.call('takeCard', template.data._id, Meteor.userId());
 			}
+			
 		} else {
 			alert("It's not your turn!");
 		}

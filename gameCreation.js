@@ -58,5 +58,7 @@ function createLLDeck () {
 			{ type: 'Countess', value: 7 },
 			{ type: 'Princess', value: 8 }
 			];
-	return _.shuffle(cards);
+	cards = _.shuffle(cards);
+	cards.splice(1,3);
+	return cards;
 }
