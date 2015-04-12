@@ -15,9 +15,9 @@ Template.hand.events({
 						alert("Opponent is protected by Handmaid");
 						Meteor.call('playCard', template.data._id, Meteor.userId(), this, 0);
 					} else {
-						var guess = prompt("What card does your opponent have?");
+						var guess = prompt("What card does your opponent have? Case sensitive - eg. type 'Baron'");
 						if (guess === "Guard") {
-							alert("You can't choose the guard!!!");
+							alert("You can't guess Guard when using a Guard. Try again.");
 							return;
 						}
 						Meteor.call('playCard', template.data._id, Meteor.userId(), this, guess);
