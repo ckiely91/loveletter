@@ -31,7 +31,7 @@ Meteor.methods({
 		Turns.addCardToHand(gameId, id, card);
 		Turns.removeTopOfDeck(gameId);
 	},
-	playCard: function (gameId, id, card, guess) {
+	playCard: function (gameId, id, card, guess, which) {
 		var game = Games.findOne(gameId),
 			type = card.type;
 
@@ -46,7 +46,7 @@ Meteor.methods({
 		} else if (type === "Handmaid") {
 			Turns.playHandmaid(gameId,game,id,otherPlayerId,card);
 		} else if (type === "Prince") {
-			Turns.playPrince(gameId,game,id,otherPlayerId,card);
+			Turns.playPrince(gameId,game,id,otherPlayerId,card,which);
 		} else if (type === "King") {
 			Turns.playKing(gameId,game,id,otherPlayerId,card);
 		} else if (type === "Countess") {

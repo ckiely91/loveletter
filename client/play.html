@@ -6,9 +6,11 @@
 			{{> deck}}
 			{{> discard}}
 			{{> hand}}
+			{{> protected}}
 		{{else}}
 			<h1>{{winner}} wins!</h1>
 		{{/if}}
+		{{> gamelog}}
 	{{/if}}
 </template>
 
@@ -47,4 +49,26 @@
 			</div>
 		{{/each}}
 	</div>
+</template>
+
+<template name="protected">
+	<div id="protected">
+	{{#if protected}}
+	<h3>Currently protected by Handmaid</h3>
+	<ul>
+	{{#each protected}}
+		<li>{{this}}</li>
+	{{/each}}
+	</ul>
+	{{/if}}
+	</div> 	
+</template>
+
+<template name="gamelog">
+	<h2>Game log</h2>
+	<ul>
+	{{#each gamelog ..}}
+		<li>{{friendlytime time}}: {{message}}</li>
+	{{/each}}
+	</ul>
 </template>

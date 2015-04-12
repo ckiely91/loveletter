@@ -1,5 +1,11 @@
 Turns = {};
 
+Turns.log = function (gameId, message) {
+	var time = new Date();
+	Games.update(gameId, {$push: {"log":{"time":time,"message":message}}});
+	console.log(message);
+};
+
 Turns.otherId = function (game) {
 	return game.currentTurn[game.currentTurn[0] === Meteor.userId() ? 1 : 0];
 };
@@ -22,6 +28,7 @@ Turns.endGame = function (gameId, winner) {
 	var winnerName = Meteor.users.findOne(winner).username;
 	Games.update(gameId, {$set: {"winner": winnerName}});
 	Games.update(gameId, {$set: {"inProgress": false} });
+	Turns.log(gameId, winnerName + " won the game!");
 };
 
 Turns.removeFromHand = function (gameId, id, card) {
@@ -30,30 +37,79 @@ Turns.removeFromHand = function (gameId, id, card) {
 		hand2 = [],
 		cardFound = false;
 
-		for (var i = hand.length - 1; i >= 0; i--) {
-			console.log(hand[i]);
+	for (var i = hand.length - 1; i >= 0; i--) {
 
-			if ((hand[i].value == card.value) && (cardFound == false))
-			{
-				console.log("Found my needle in my haystack.");
-				console.log(card);
-				cardFound = true;
-			} else {
-				hand2.push(hand[i]);
-			}
-		};
+		if ((hand[i].value == card.value) && (cardFound == false))
+		{
+			cardFound = true;
+		} else {
+			hand2.push(hand[i]);
+		}
+	};
+
 	var object = {};
 	object["players." + id + ".hand"] = hand2;
 	Games.update(gameId, {$set: object});
 };
 
+Turns.discardHandAndDrawNewCard = function (gameId, id) {
+	var object = {};
+	object["players." + id + ".hand"] = {};
+	Games.update(gameId, {$pull: object});
+
+	var game = Games.findOne(gameId),
+		newCard = game.deck[0];
+
+	Turns.removeTopOfDeck(gameId);
+	Turns.addCardToHand(gameId,id,newCard);
+
+	console.log(id + "'s hand was discarded and they drew a new card.");
+	Turns.log(gameId, Meteor.users.findOne(id).username + "'s hand was discarded and they drew a new card.");
+
+}
+
 Turns.changeCurrentPlayer = function (gameId) {
 	var game = Games.findOne(gameId),
-		currentPlayer = game.currentTurn[0];
+		currentPlayer = game.currentTurn[0],
+		newCurrentPlayer = game.currentTurn[1];
 
 	Games.update(gameId, {$pop: {"currentTurn": -1}});
 	Games.update(gameId, {$push: {"currentTurn": currentPlayer}});
+
+	//checking if new current player is protected by handmaiden; if so, unprotect them
+	var newCurrentPlayerProtected = Turns.isProtected(game,newCurrentPlayer);
+
+	if (newCurrentPlayerProtected == true) {
+		var theUsername = Meteor.users.findOne(newCurrentPlayer).username;
+		Games.update(gameId, {$pull: {protected:theUsername}});
+	}; 
 };
+
+Turns.isProtected = function (game, id) {
+	var protectedList = game.protected,
+		theUsername = Meteor.users.findOne(id).username;
+
+	if (protectedList.indexOf(theUsername) > -1) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+Turns.holdingCountess = function (game, id) {
+	var hand = game.players[id].hand;
+
+	for (var i = hand.length - 1; i >= 0; i--) {
+
+		if ((hand[i].value == 7))
+		{
+			console.log("User has the Countess!");
+			return true;
+		} 
+	};
+	return false;
+}
 
 Turns.playGuard = function (gameId, game, id, otherPlayerId, card, guess) {
 	//Guess a player's hand
@@ -61,17 +117,24 @@ Turns.playGuard = function (gameId, game, id, otherPlayerId, card, guess) {
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
-	Turns.changeCurrentPlayer(gameId);
 
-	if (opponentHand === guess) {
-		console.log("Your opponent has that card!")
-		Turns.endGame(gameId,otherPlayerId);
-
-	} else {
-    	console.log("Your opponent doesn't have that card!")
-    	return;
+	if (Turns.isProtected(game,otherPlayerId) == true) {
+		console.log("Opponent was protected by Handmaid");
+		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Guard but the opponent was protected by a Handmaid.");
+		Turns.changeCurrentPlayer(gameId);
+		return;
 	};
 
+	if (opponentHand === guess) {
+		console.log("Your opponent has that card!");
+		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Guard and guessed " + guess + ", and they were right!");
+		Turns.endGame(gameId,otherPlayerId);
+		return;
+	} else {
+    	console.log("Your opponent doesn't have that card!");
+    	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Guard and guessed " + guess + ". They were wrong.");
+    	Turns.changeCurrentPlayer(gameId);
+	};
 
 };
 
@@ -79,7 +142,7 @@ Turns.playPriest = function (gameId, game, id, otherPlayerId, card) {
 	//Look at a hand
 	//Functionality for this is all client-side currently (play.js)
 	console.log("Discarded Priest");
-
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a priest to look at the opponent's hand.");
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
 	Turns.changeCurrentPlayer(gameId);
@@ -89,51 +152,72 @@ Turns.playPriest = function (gameId, game, id, otherPlayerId, card) {
 Turns.playBaron = function (gameId, game, id, otherPlayerId, card) {
 	// Compare hands, lower hand is out
 
-	console.log("Discarded Baron");
-
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
-	Turns.changeCurrentPlayer(gameId);
 
-	var	opponentHand = game.players[otherPlayerId].hand[0].value,
+	if (Turns.isProtected(game,otherPlayerId) == true) {
+		console.log("Opponent was protected by Handmaid");
+		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Baron but the opponent was protected by Handmaid.");
+		Turns.changeCurrentPlayer(gameId);
+	} else {
+		var	opponentHand = game.players[otherPlayerId].hand[0].value,
 		userHand = game.players[id].hand[0].value;
 
-	if (userHand > opponentHand) {
-		Turns.endGame(gameId,id);
-	} else if (userHand < opponentHand) {
-		Turns.endGame(gameId,otherPlayerId);
-	} else {
-		// cards must be equal, nothing happens
-		return;
+		if (userHand > opponentHand) {
+			Turns.log(gameId, Meteor.users.findOne(id).username + " played a Baron and they had the high card.");
+			Turns.endGame(gameId,id);
+		} else if (userHand < opponentHand) {
+			Turns.log(gameId, Meteor.users.findOne(id).username + " played a Baron and the opponent had the high card.");
+			Turns.endGame(gameId,otherPlayerId);
+		} else {
+			console.log("Cards were equal!");
+			Turns.log(gameId, Meteor.users.findOne(id).username + " played a Baron but both cards were equal.");
+			Turns.changeCurrentPlayer(gameId);
+		}
 	}
 };
 
 Turns.playHandmaid = function (gameId, game, id, otherPlayerId, card) {
 	// Protection until next turn
-	// Will implement later
 	
 	console.log("Discarded Handmaid");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Handmaid and is protected until their next turn.");
+	var theUsername = Meteor.users.findOne(id).username;
+
+	Games.update(gameId, {$push: {"protected":theUsername}});
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
 	Turns.changeCurrentPlayer(gameId);
 };
 
-Turns.playPrince = function (gameId, game, id, otherPlayerId, card) {
+Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 	// One player discards his or her hand
 	// Needs to ask current player if they want to discard their own hand
 	// Must discard Countess instead if held
 	console.log("Discarded Prince");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Prince.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
 	Turns.changeCurrentPlayer(gameId);
+
+	if (which == 1) {
+		//current player discards hand and draws new card
+
+		Turns.discardHandAndDrawNewCard(gameId,id);
+
+	} else {
+		//opponent discards hand and draws new card
+		Turns.discardHandAndDrawNewCard(gameId,otherPlayerId);
+	}
 };
 
 Turns.playKing = function (gameId, game, id, otherPlayerId, card) {
 	//Trade hands
 	//Must discard Countess instead if held
 	console.log("Discarded King");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a King.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
@@ -143,6 +227,7 @@ Turns.playKing = function (gameId, game, id, otherPlayerId, card) {
 Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {
 	//Discard if caught with King or Prince
 	console.log("Discarded Countess");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Countess.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
@@ -152,6 +237,7 @@ Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {
 Turns.playPrincess = function (gameId, game, id, otherPlayerId, card) {
 	// Lose game if discarded
 	console.log("Discarded Princess");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Princess.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);

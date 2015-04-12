@@ -12,6 +12,7 @@ GameFactory.createGame = function (playerIds) {
 		players: players,
 		currentTurn: playerIds,
 		inProgress: true,
+		protected: [],
 		started: new Date()
 	};
 
