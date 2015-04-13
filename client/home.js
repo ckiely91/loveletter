@@ -13,8 +13,9 @@ Template.gameList.helpers({
 });
 
 Template.gameItem.helpers({
-	myTurn: function (currentTurn) {
-		return currentTurn[0] === Meteor.userId() ? 1 : 0;
+	myTurn: function (turnOrder) {
+		firstPlayer = 0;
+		return turnOrder[firstPlayer] === Meteor.userId() ? true : false;
 	}
 });
 
