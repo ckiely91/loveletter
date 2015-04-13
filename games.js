@@ -39,21 +39,21 @@ Meteor.methods({
 		var otherPlayerId = Turns.otherId(game);
 
 		if (type === "Guard") {
-			Turns.playGuard(gameId,game,id,otherPlayerId,card,guess);
+			Turns.playGuard(gameId,id,otherPlayerId,card,guess);
 		} else if (type === "Priest") {
-			Turns.playPriest(gameId,game,id,otherPlayerId,card);
+			Turns.playPriest(gameId,id,otherPlayerId,card);
 		} else if (type === "Baron") {
-			Turns.playBaron(gameId,game,id,otherPlayerId,card);
+			Turns.playBaron(gameId,id,otherPlayerId,card);
 		} else if (type === "Handmaid") {
-			Turns.playHandmaid(gameId,game,id,otherPlayerId,card);
+			Turns.playHandmaid(gameId,id,otherPlayerId,card);
 		} else if (type === "Prince") {
-			Turns.playPrince(gameId,game,id,otherPlayerId,card,which);
+			Turns.playPrince(gameId,id,otherPlayerId,card,which);
 		} else if (type === "King") {
-			Turns.playKing(gameId,game,id,otherPlayerId,card);
+			Turns.playKing(gameId,id,otherPlayerId,card);
 		} else if (type === "Countess") {
-			Turns.playCountess(gameId,game,id,otherPlayerId,card);
+			Turns.playCountess(gameId,id,otherPlayerId,card);
 		} else if (type === "Princess") {
-			Turns.playPrincess(gameId,game,id,otherPlayerId,card);
+			Turns.playPrincess(gameId,id,otherPlayerId,card);
 		} else {
 			console.log ("Wut");
 			return;

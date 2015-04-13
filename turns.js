@@ -170,9 +170,9 @@ Turns.holdingCountess = function (game, id) {
 	return false;
 }
 
-Turns.playGuard = function (gameId, game, id, otherPlayerId, card, guess) {
-	//Guess a player's hand
-	var	opponentHand = game.players[otherPlayerId].hand[0].type;
+Turns.playGuard = function (gameId, id, otherPlayerId, card, guess) {
+	var game = Games.findOne(gameId),
+		opponentHand = game.players[otherPlayerId].hand[0].type;
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
@@ -197,7 +197,7 @@ Turns.playGuard = function (gameId, game, id, otherPlayerId, card, guess) {
 
 };
 
-Turns.playPriest = function (gameId, game, id, otherPlayerId, card) {
+Turns.playPriest = function (gameId, id, otherPlayerId, card) {
 	//Look at a hand
 	//Functionality for this is all client-side currently (play.js)
 	console.log("Discarded Priest");
@@ -208,7 +208,7 @@ Turns.playPriest = function (gameId, game, id, otherPlayerId, card) {
 
 };
 
-Turns.playBaron = function (gameId, game, id, otherPlayerId, card) {
+Turns.playBaron = function (gameId, id, otherPlayerId, card) {
 	// Compare hands, lower hand is out
 
 	Turns.addToDiscard(gameId,card);
@@ -238,7 +238,7 @@ Turns.playBaron = function (gameId, game, id, otherPlayerId, card) {
 	}
 };
 
-Turns.playHandmaid = function (gameId, game, id, otherPlayerId, card) {
+Turns.playHandmaid = function (gameId, id, otherPlayerId, card) {
 	// Protection until next turn
 	
 	console.log("Discarded Handmaid");
@@ -252,7 +252,7 @@ Turns.playHandmaid = function (gameId, game, id, otherPlayerId, card) {
 	Turns.changeCurrentPlayer(gameId);
 };
 
-Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
+Turns.playPrince = function (gameId, id, otherPlayerId, card, which) {
 	// One player discards his or her hand
 	// Needs to ask current player if they want to discard their own hand
 	// Must discard Countess instead if held
@@ -273,7 +273,7 @@ Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 	}
 };
 
-Turns.playKing = function (gameId, game, id, otherPlayerId, card) {
+Turns.playKing = function (gameId, id, otherPlayerId, card) {
 	//Trade hands
 	//Must discard Countess instead if held
 	console.log("Discarded King");
@@ -285,7 +285,7 @@ Turns.playKing = function (gameId, game, id, otherPlayerId, card) {
 	Turns.swapHands(gameId,id,otherPlayerId);
 };
 
-Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {
+Turns.playCountess = function (gameId, id, otherPlayerId, card) {
 	//Discard if caught with King or Prince
 	console.log("Discarded Countess");
 	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Countess.");
@@ -295,7 +295,7 @@ Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {
 	Turns.changeCurrentPlayer(gameId);
 };
 
-Turns.playPrincess = function (gameId, game, id, otherPlayerId, card) {
+Turns.playPrincess = function (gameId, id, otherPlayerId, card) {
 	// Lose game if discarded
 	console.log("Discarded Princess");
 	Turns.log(gameId, Meteor.users.findOne(id).username + " discarded a Princess and was therefore eliminated.");
