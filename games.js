@@ -20,7 +20,7 @@ Meteor.methods({
 	createGame: function (otherPlayerId) {
 		var game = GameFactory.createGame([Meteor.userId(), otherPlayerId]);
 		var gameId = Games.insert(game);
-		Turns.log(gameId, "Game started. Three random cards were removed from the deck.")
+		Turns.log(gameId, "Game started. One card was removed from the deck face down, and three cards were removed face up.")
 	},
 	takeCard: function (gameId, id) {
 		var game = Games.findOne(gameId),

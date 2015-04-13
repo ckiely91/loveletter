@@ -85,7 +85,7 @@ Template.deck.events({
 });
 
 Template.guardchoice.events({
-	'click a': function (evt, template) {
+	'click button': function (evt, template) {
 		document.getElementById('guardchoice').style.display = 'none';
 		Session.set('modal',false);
 		var guess = evt.target.name,

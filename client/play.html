@@ -1,4 +1,5 @@
 <template name="play">
+<div id="gamebody" class="{{#if yourTurn}}yourturn{{/if}}">
 	{{> signupLogin}}
 	{{#if currentUser}}
 		{{> guardchoice}}
@@ -8,17 +9,17 @@
 			{{> deck}}
 			{{> discard}}
 			{{> hand}}
-			{{> protected}}
 		{{else}}
 			<h1>{{winner}} wins!</h1>
 		{{/if}}
 		{{> gamelog}}
 	{{/if}}
+</div>
 </template>
 
 <template name="status">
 	<p><a href="/"> &larr; Home </a> </p>
-	<h2>Game between you and {{otherPlayer.username}} {{#if inProgress}} {{#if yourTurn}}(Your Turn) {{/if}} {{/if}}</h2>
+	<h1>Game between you and {{otherPlayer.username}}{{#if inProgress}}<br>{{#if yourTurn}}(your turn){{else}}({{otherPlayer.username}}'s turn) {{/if}} {{/if}}</h1>
 </template>
 
 <template name="deck">
@@ -56,7 +57,7 @@
 <template name="protected">
 	<div id="protected">
 	{{#if protected}}
-	<h3>Currently protected by Handmaid</h3>
+	<h2>Protected by Handmaid</h2>
 	<ul>
 	{{#each protected}}
 		<li>{{this}}</li>
@@ -78,7 +79,7 @@
 <template name="cardlist">
 <div id="cardlist">
 <h2>List of cards</h2>
-<ul>
+<ul class="cardlist">
 	<li><strong>8 - Princess</strong> (1): Lose if discarded.</li>
 	<li><strong>7 - Countess</strong> (1): Discard if caught with King or Prince.</li>
 	<li><strong>6 - King</strong> (1): Trade hands.</li>	
@@ -88,20 +89,28 @@
 	<li><strong>2 - Priest</strong> (2): Look at another player's hand.</li>
 	<li><strong>1 - Guard</strong> (5): Name a card other than Guard. If the player has that card, they are out.</li>
 </ul>
+<h2>Faceup cards removed from deck</h2>
+<ul>
+	{{#each faceup}}
+		<li>{{this.type}}</li>
+	{{/each}}
+</ul>
+{{> protected}}	
 </div>
+
 </template>
 
 <template name="guardchoice">
 <div id="guardchoice">
 	<h2>What card does the other player have?</h2>
 	<ul>
-		<li><a href="#" name="Priest">Priest</a></li>
-		<li><a href="#" name="Baron">Baron</a></li>
-		<li><a href="#" name="Handmaid">Handmaid</a></li>
-		<li><a href="#" name="Prince">Prince</a></li>
-		<li><a href="#" name="King">King</a></li>
-		<li><a href="#" name="Countess">Countess</a></li>
-		<li><a href="#" name="Princess">Princess</a></li>
+		<li><button name="Priest">Priest</button></li>
+		<li><button name="Baron">Baron</button></li>
+		<li><button name="Handmaid">Handmaid</button></li>
+		<li><button name="Prince">Prince</button></li>
+		<li><button name="King">King</button></li>
+		<li><button name="Countess">Countess</button></li>
+		<li><button name="Princess">Princess</button></li>
 	</ul>
 </div>
 </template>

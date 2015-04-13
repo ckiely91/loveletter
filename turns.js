@@ -3,7 +3,6 @@ Turns = {};
 Turns.log = function (gameId, message) {
 	var time = new Date();
 	Games.update(gameId, {$push: {"log":{"time":time,"message":message}}});
-	console.log(message);
 };
 
 Turns.otherId = function (game) {
@@ -46,8 +45,8 @@ Turns.endGameEmptyDeck = function(gameId) {
 		player2hand = game.players[player2].hand[0];
 
 	Turns.log(gameId, "Game over!");
-	Turns.log(gameId, Meteor.users[player1].username + " had a " + player1hand.type + ", worth " + player1hand.value + ".");
-	Turns.log(gameId, Meteor.users[player2].username + " had a " + player2hand.type + ", worth " + player2hand.value + ".");
+	Turns.log(gameId, Meteor.users.findOne(player1).username + " had a " + player1hand.type + ", worth " + player1hand.value + ".");
+	Turns.log(gameId, Meteor.users.findOne(player2).username + " had a " + player2hand.type + ", worth " + player2hand.value + ".");
 
 	if (player1hand.value > player2hand.value) {
 		Turns.endGame(gameId, player1);
@@ -89,6 +88,13 @@ Turns.discardHandAndDrawNewCard = function (gameId, game, id, otherPlayerId) {
 
 	if (card.value == 8) {
 		Turns.playPrincess(gameId,game,id,otherPlayerId,card);
+	} else if (game.deck.length < 1) {
+		var object = {};
+		object["players." + id + ".hand"] = {};
+		Games.update(gameId, {$pull: object});
+		Turns.addCardToHand(gameId, id, game.facedown[0]);
+		Turns.log(gameId, "The deck was empty so the removed facedown card was drawn.")
+		return;
 	} else {
 		var object = {};
 		object["players." + id + ".hand"] = {};

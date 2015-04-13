@@ -2,13 +2,18 @@ GameFactory = {};
 
 GameFactory.createGame = function (playerIds) {
 
-	var deck = createLLDeck(),
+	var allcards = createLLDeck(),
+		deck = allcards[0],
+		faceup = allcards[1],
+		facedown = allcards[2],
 		players = createPlayers(playerIds);
 
 	GameFactory.dealPlayers(players, deck);
 
 	return {
 		deck: deck,
+		faceup: faceup,
+		facedown: facedown,
 		players: players,
 		currentTurn: playerIds,
 		inProgress: true,
@@ -59,6 +64,7 @@ function createLLDeck () {
 			{ type: 'Princess', value: 8 }
 			];
 	cards = _.shuffle(cards);
-	cards.splice(1,3);
-	return cards;
+	var facedown = cards.splice(1,1),
+		faceup = cards.splice(1,3);
+	return [cards,faceup,facedown];
 }
