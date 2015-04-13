@@ -67,10 +67,14 @@ li a:hover {
 	  font-size: 16px;
 }
 
-.Princess {color:gold;}
-.Countess {color:red;}
-.Prince {color:blue;}
-.King {color:green;}
+.Guard {background:#FFC873;}
+.Priest {background:#FFC3A4;}
+.Baron {background:#E1A4FF;}
+.Handmaid {background:#C2E4F9;}
+.Prince {background:#FFFEA7;}
+.King {background:#CBFFA7;}
+.Countess {background:#A7BCFF;}
+.Princess {background:#F8F9FF;}
 
 #deck .card {
 	background:#999;

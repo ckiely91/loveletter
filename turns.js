@@ -84,20 +84,25 @@ Turns.removeFromHand = function (gameId, id, card) {
 	Games.update(gameId, {$set: object});
 };
 
-Turns.discardHandAndDrawNewCard = function (gameId, id) {
-	var object = {};
-	object["players." + id + ".hand"] = {};
-	Games.update(gameId, {$pull: object});
+Turns.discardHandAndDrawNewCard = function (gameId, game, id, otherPlayerId) {
+	var card = game.players[id].hand[0];
 
-	var game = Games.findOne(gameId),
-		newCard = game.deck[0];
-
-	Turns.removeTopOfDeck(gameId);
-	Turns.addCardToHand(gameId,id,newCard);
-
-	console.log(id + "'s hand was discarded and they drew a new card.");
-	Turns.log(gameId, Meteor.users.findOne(id).username + "'s hand was discarded and they drew a new card.");
-
+	if (card.value == 8) {
+		Turns.playPrincess(gameId,game,id,otherPlayerId,card);
+	} else {
+		var object = {};
+		object["players." + id + ".hand"] = {};
+		Games.update(gameId, {$pull: object});
+	
+		var game = Games.findOne(gameId),
+			newCard = game.deck[0];
+	
+		Turns.removeTopOfDeck(gameId);
+		Turns.addCardToHand(gameId,id,newCard);
+	
+		console.log(id + "'s hand was discarded and they drew a new card.");
+		Turns.log(gameId, Meteor.users.findOne(id).username + "'s hand was discarded and they drew a new card.");
+	}
 }
 
 Turns.swapHands = function (gameId, id, otherPlayerId) {
@@ -252,11 +257,10 @@ Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 
 	if (which == 1) {
 		//current player discards hand and draws new card
-		Turns.discardHandAndDrawNewCard(gameId,id);
-
+		Turns.discardHandAndDrawNewCard(gameId,game,id,otherPlayerId);
 	} else {
 		//opponent discards hand and draws new card
-		Turns.discardHandAndDrawNewCard(gameId,otherPlayerId);
+		Turns.discardHandAndDrawNewCard(gameId,game,otherPlayerId,id);
 	}
 };
 
@@ -285,7 +289,7 @@ Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {
 Turns.playPrincess = function (gameId, game, id, otherPlayerId, card) {
 	// Lose game if discarded
 	console.log("Discarded Princess");
-	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Princess.");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a discarded a Princess and was therefore eliminated.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
