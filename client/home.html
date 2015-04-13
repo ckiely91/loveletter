@@ -22,6 +22,11 @@
 	<a href="/game/{{_id}}">Game with {{otherPlayer}}
 		{{#if inProgress}}
 			<span>started {{started}}</span>
+			{{#if myTurn currentTurn}}
+				my turn
+		  {{else}}
+		    their turn
+			{{/if}}
 		{{/if}}
 	</a>
 	</li>

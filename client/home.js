@@ -12,7 +12,11 @@ Template.gameList.helpers({
 	}
 });
 
-
+Template.gameItem.helpers({
+	myTurn: function (currentTurn) {
+		return currentTurn[0] === Meteor.userId() ? 1 : 0;
+	}
+});
 
 
 Template.userList.helpers({
