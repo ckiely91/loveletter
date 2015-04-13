@@ -93,3 +93,7 @@ li a:hover {
 	display:inline-block;
 }
 
+#cardlist {
+	float:right;
+	max-width:400px;
+}
