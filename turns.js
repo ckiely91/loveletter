@@ -83,8 +83,9 @@ Turns.removeFromHand = function (gameId, id, card) {
 	Games.update(gameId, {$set: object});
 };
 
-Turns.discardHandAndDrawNewCard = function (gameId, game, id, otherPlayerId) {
-	var card = game.players[id].hand[0];
+Turns.discardHandAndDrawNewCard = function (gameId, id, otherPlayerId) {
+	var game = Games.findOne(gameId);
+		card = game.players[id].hand[0];
 
 	if (card.value == 8) {
 		Turns.playPrincess(gameId,game,id,otherPlayerId,card);
@@ -106,7 +107,6 @@ Turns.discardHandAndDrawNewCard = function (gameId, game, id, otherPlayerId) {
 		Turns.removeTopOfDeck(gameId);
 		Turns.addCardToHand(gameId,id,newCard);
 	
-		console.log(id + "'s hand was discarded and they drew a new card.");
 		Turns.log(gameId, Meteor.users.findOne(id).username + "'s hand was discarded and they drew a new card.");
 	}
 }
@@ -265,11 +265,11 @@ Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 	if (which == 1) {
 		//current player discards hand and draws new card
 		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Prince to discard their own hand.");
-		Turns.discardHandAndDrawNewCard(gameId,game,id,otherPlayerId);
+		Turns.discardHandAndDrawNewCard(gameId,id,otherPlayerId);
 	} else {
 		//opponent discards hand and draws new card
 		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Prince to force " + Meteor.users.findOne(otherPlayerId).username + " to discard their hand.");
-		Turns.discardHandAndDrawNewCard(gameId,game,otherPlayerId,id);
+		Turns.discardHandAndDrawNewCard(gameId,otherPlayerId,id);
 	}
 };
 
