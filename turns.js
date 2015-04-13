@@ -213,6 +213,8 @@ Turns.playBaron = function (gameId, game, id, otherPlayerId, card) {
 		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Baron but the opponent was protected by Handmaid.");
 		Turns.changeCurrentPlayer(gameId);
 	} else {
+		//refreshing the game object after card was removed
+		game = Games.findOne(gameId);
 		var	opponentHand = game.players[otherPlayerId].hand[0].value,
 		userHand = game.players[id].hand[0].value;
 
@@ -249,7 +251,6 @@ Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 	// Needs to ask current player if they want to discard their own hand
 	// Must discard Countess instead if held
 	console.log("Discarded Prince");
-	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Prince.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
@@ -257,9 +258,11 @@ Turns.playPrince = function (gameId, game, id, otherPlayerId, card, which) {
 
 	if (which == 1) {
 		//current player discards hand and draws new card
+		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Prince to discard their own hand.");
 		Turns.discardHandAndDrawNewCard(gameId,game,id,otherPlayerId);
 	} else {
 		//opponent discards hand and draws new card
+		Turns.log(gameId, Meteor.users.findOne(id).username + " played a Prince to force " + Meteor.users.findOne(otherPlayerId).username + " to discard their hand.");
 		Turns.discardHandAndDrawNewCard(gameId,game,otherPlayerId,id);
 	}
 };
@@ -289,7 +292,7 @@ Turns.playCountess = function (gameId, game, id, otherPlayerId, card) {
 Turns.playPrincess = function (gameId, game, id, otherPlayerId, card) {
 	// Lose game if discarded
 	console.log("Discarded Princess");
-	Turns.log(gameId, Meteor.users.findOne(id).username + " played a discarded a Princess and was therefore eliminated.");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " discarded a Princess and was therefore eliminated.");
 
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);

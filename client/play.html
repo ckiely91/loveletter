@@ -1,6 +1,7 @@
 <template name="play">
 	{{> signupLogin}}
 	{{#if currentUser}}
+		{{> guardchoice}}
 		{{> status}}
 		{{#if inProgress}}
 			{{> cardlist}}
@@ -87,5 +88,20 @@
 	<li><strong>2 - Priest</strong> (2): Look at another player's hand.</li>
 	<li><strong>1 - Guard</strong> (5): Name a card other than Guard. If the player has that card, they are out.</li>
 </ul>
+</div>
+</template>
+
+<template name="guardchoice">
+<div id="guardchoice">
+	<h2>What card does the other player have?</h2>
+	<ul>
+		<li><a href="#" name="Priest">Priest</a></li>
+		<li><a href="#" name="Baron">Baron</a></li>
+		<li><a href="#" name="Handmaid">Handmaid</a></li>
+		<li><a href="#" name="Prince">Prince</a></li>
+		<li><a href="#" name="King">King</a></li>
+		<li><a href="#" name="Countess">Countess</a></li>
+		<li><a href="#" name="Princess">Princess</a></li>
+	</ul>
 </div>
 </template>
