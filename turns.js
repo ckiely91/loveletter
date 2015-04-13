@@ -190,7 +190,7 @@ Turns.playPriest = function (gameId, game, id, otherPlayerId, card) {
 	//Look at a hand
 	//Functionality for this is all client-side currently (play.js)
 	console.log("Discarded Priest");
-	Turns.log(gameId, Meteor.users.findOne(id).username + " played a priest to look at the opponent's hand.");
+	Turns.log(gameId, Meteor.users.findOne(id).username + " played a Priest to look at the opponent's hand.");
 	Turns.addToDiscard(gameId,card);
 	Turns.removeFromHand(gameId,id,card);
 	Turns.changeCurrentPlayer(gameId);
